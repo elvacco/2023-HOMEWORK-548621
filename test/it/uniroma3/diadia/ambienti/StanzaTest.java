@@ -3,6 +3,11 @@ package it.uniroma3.diadia.ambienti;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,106 +15,120 @@ import it.uniroma3.diadia.attrezzi.Attrezzo;
 
 class StanzaTest {
 
-	private Stanza stanza;
+static final private int NUMERO_MASSIMO_ATTREZZI = 10;
+	
+	private Map<String, Stanza> stanzaMap;
 	private Attrezzo attrezzo;
-
+	private Stanza stanza;
+	
 	@BeforeEach
 	public void setUp() {
-		this.stanza = new Stanza("stanza");
+		this.stanzaMap = new HashMap<String,Stanza>();
 		this.attrezzo = new Attrezzo("attrezzo", 1);
+		this.stanza = new Stanza("stanza");
 	}
-
+	
 	@Test
-	void testImpostaStanzaAdiacente() {
-		Stanza stanzaAdiacente = new Stanza("stanza adiacente");
-		this.stanza.impostaStanzaAdiacente("nord", stanzaAdiacente);
-		assertEquals(this.stanza.getStanzaAdiacente("nord"), stanzaAdiacente);
+	public void testImpostaStanzaAdiacenteSingola() {
+		Stanza stanzaAdiacente = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "stanzaAdiacente", "nord");
+		assertEquals(this.stanzaMap.get("nord"), stanzaAdiacente);
 	}
-
+	
 	@Test
-	void testImpostaCambiaStanzaAdiacente() {
-		Stanza stanzaAdiacente = new Stanza("stanza adiacente");
-		this.stanza.impostaStanzaAdiacente("nord", stanzaAdiacente);
-		Stanza nuovaStanzaAdiacente = new Stanza("nuova stanza adiacente");
-		this.stanza.impostaStanzaAdiacente("nord", nuovaStanzaAdiacente);
-		assertEquals(this.stanza.getStanzaAdiacente("nord"), nuovaStanzaAdiacente);
-		assertNotEquals(this.stanza.getStanzaAdiacente("nord"), stanzaAdiacente);
+	public void testCambiaStanzaAdiacente() {
+		Stanza stanzaAdiacente = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "stanzaAdiacente", "nord");
+		Stanza nuovaAdiacente = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "nuovaAdiacente", "nord");
+		assertEquals(nuovaAdiacente, this.stanzaMap.get("nord"));
+		assertNotEquals(stanzaAdiacente, this.stanzaMap.get("nord"));
 	}
-
+	
 	@Test
-	void testImportaMassimo4Stanze() {
-		Stanza stanzaAdiacente = new Stanza("adiacente");
-		this.stanza.impostaStanzaAdiacente("nord", stanzaAdiacente);
+	public void testImpostaMassimo4Stanze() {
+		Stanza adiacente = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "adiacente", "nord");
 		String[] direzioni = {"nord", "sud", "est", "ovest"};
 		for(String direzione : direzioni)
-			this.stanza.impostaStanzaAdiacente(direzione, stanzaAdiacente);
-
+			this.stanza.impostaStanzaAdiacente(direzione, adiacente);
+		
 		String nuovaDirezione = "nord-ovest";
-		Stanza stanzaInPiu = new Stanza("stanzaInPiu");
-		this.stanza.impostaStanzaAdiacente(nuovaDirezione, stanzaInPiu);
+		Stanza stanzaInPiu = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "stanzaInPiu", nuovaDirezione);
+		
 		assertNotEquals(stanzaInPiu, this.stanza.getStanzaAdiacente(nuovaDirezione));
 	}
-
+	
 	@Test
-	void testStanzaAdiacenteInesistente() {
-		assertNull(this.stanza.getStanzaAdiacente("nord"));
-	}
-
-	@Test
-	void testGetQuattroDirezioni() {
-		Stanza salone = new Stanza("salone");
-		Stanza cucina = new Stanza("cucina");
-		Stanza camera = new Stanza("camera");
-		Stanza bagno = new Stanza("bagno");
-
-		this.stanza.impostaStanzaAdiacente("nord", salone);
-		this.stanza.impostaStanzaAdiacente("sud", cucina);
-		this.stanza.impostaStanzaAdiacente("est", camera);
-		this.stanza.impostaStanzaAdiacente("ovest", bagno);
-
-		assertEquals(salone, this.stanza.getStanzaAdiacente("nord"));
-		assertEquals(cucina, this.stanza.getStanzaAdiacente("sud"));
-		assertEquals(camera, this.stanza.getStanzaAdiacente("est"));
-		assertEquals(bagno, this.stanza.getStanzaAdiacente("ovest"));
-	}
-
-	@Test
-	void testAddAttrezzoRitornaTrue() {
-		assertTrue(this.stanza.addAttrezzo(this.attrezzo));
-	}
-
-	@Test
-	void testAddSingoloAttrezzo() {
-		this.stanza.addAttrezzo(this.attrezzo);
-		assertEquals(this.stanza.getAttrezzo("attrezzo"), this.attrezzo);
-	}
-
-	@Test
-	void testHasAttrezzoNonTrovato() {
-		assertFalse(this.stanza.hasAttrezzo("attrezzo"));
+	public void testStanzaAdiacenteInesistente() {
+		assertNull(this.stanzaMap.get("nord"));
 	}
 	
 	@Test
-	void testHasAttrezzoTrovato() {
-		this.stanza.addAttrezzo(attrezzo);
-		assertTrue(this.stanza.hasAttrezzo("attrezzo"));
+	public void testGetDirezioneSingola() {
+		Stanza adiacente = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "stanzaAdiacente", "nord");
+		Set<String> direzioni = new HashSet<String>();
+		direzioni.add("nord");
+		assertEquals(adiacente, this.stanzaMap.get("nord"));
+		assertEquals(direzioni, this.stanzaMap.keySet());
 	}
 	
 	@Test
-	void testGetAttrezzo() {
-		this.stanza.addAttrezzo(attrezzo);
-		assertSame(attrezzo, this.stanza.getAttrezzo("attrezzo"));
+	public void testGetQuattroDirezioni() {
+		Stanza salone = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "salone", "nord");
+		Stanza cucina = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "cucina", "sud");
+		Stanza camera = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "camera", "est");
+		Stanza bagno = creaStanzaImpostaStanzaAdiacente(this.stanzaMap, "bagno", "ovest");
+		
+		Set<String> direzioni = new HashSet<String>();
+		direzioni.add("nord");
+		direzioni.add("sud");
+		direzioni.add("est");
+		direzioni.add("ovest");
+		
+		assertEquals(salone, this.stanzaMap.get("nord"));
+		assertEquals(cucina, this.stanzaMap.get("sud"));
+		assertEquals(camera, this.stanzaMap.get("est"));
+		assertEquals(bagno, this.stanzaMap.get("ovest"));
+		assertEquals(direzioni, this.stanzaMap.keySet());
 	}
-
+	
 	@Test
-	void testRemoveAttrezzo() {
+	public void testAddSingoloAttrezzo() {
 		this.stanza.addAttrezzo(attrezzo);
-		assertTrue(this.stanza.removeAttrezzo("attrezzo"));
-
+		assertEquals(this.stanza.getAttrezzo("attrezzo"), attrezzo);
 	}
-
+	
 	@Test
-	void testGetDirezioni() {
-
+	public void testAddAttrezzoDiTroppo() {
+		for(int i=0; i<=NUMERO_MASSIMO_ATTREZZI; i++) {
+			this.stanza.addAttrezzo(this.attrezzo);
+		}
+		
+		Attrezzo attrezzoDiTroppo = new Attrezzo("attrezzoDiTroppo", 2);
+		this.stanza.addAttrezzo(attrezzoDiTroppo);
+		assertFalse(this.stanza.hasAttrezzo("attrezzoDiTroppo"));
+	}
+	
+	@Test
+	public void testHasAttrezzoSingolo() {
+		this.stanzaMap.put("attrezzo", stanza);
+		assertTrue(this.stanzaMap.containsKey("attrezzo"));
+	}
+	
+	@Test
+	public void testHasAttrezzoNonPresente() {
+		assertFalse(this.stanzaMap.containsKey("nomeAttrezzo"));
+	}
+	
+	@Test
+	public void testRemoveAttrezzo() {
+		this.stanzaMap.put(attrezzo.getNome(), stanza);
+		this.stanzaMap.remove(attrezzo.getNome());
+		assertFalse(this.stanzaMap.containsKey(stanza.getNome()));
+	}
+	
+	
+	
+	public Stanza creaStanzaImpostaStanzaAdiacente(Map<String, Stanza> stanzaPartenza, String nomeStanzaAdiacente, String direzione) {
+		Stanza stanzaAdiacente = new Stanza(nomeStanzaAdiacente);
+		stanzaPartenza.put(direzione, stanzaAdiacente);
+		return stanzaAdiacente;
 	}
 }

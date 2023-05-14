@@ -1,16 +1,11 @@
 package it.uniroma3.diadia;
 
 
-import java.util.Scanner;
-
 import it.uniroma3.diadia.ambienti.Labirinto;
-import it.uniroma3.diadia.ambienti.Stanza;
-import it.uniroma3.diadia.attrezzi.Attrezzo;
+import it.uniroma3.diadia.ambienti.LabirintoBuilder;
 import it.uniroma3.diadia.comandi.Comando;
 import it.uniroma3.diadia.comandi.FabbricaDiComandi;
 import it.uniroma3.diadia.comandi.FabbricaDiComandiFisarmonica;
-import it.uniroma3.diadia.giocatore.Borsa;
-import it.uniroma3.diadia.giocatore.Giocatore;
 
 /**
  * Classe principale di diadia, un semplice gioco di ruolo ambientato al dia.
@@ -26,7 +21,7 @@ import it.uniroma3.diadia.giocatore.Giocatore;
 
 public class DiaDia {
 
-	static final private String MESSAGGIO_BENVENUTO = ""+
+	public static final String MESSAGGIO_BENVENUTO = ""+
 			"Ti trovi nell'Universita', ma oggi e' diversa dal solito...\n" +
 			"Meglio andare al piu' presto in biblioteca a studiare. Ma dov'e'?\n"+
 			"I locali sono popolati da strani personaggi, " +
@@ -38,9 +33,15 @@ public class DiaDia {
 
 	private IO io;
 	private Partita partita;
+	
 	public DiaDia(IO io) {
 		this.io = io;
 		this.partita = new Partita();
+	}
+	
+	public DiaDia(Labirinto lab, IO io) {
+		this.partita = new Partita(lab);
+		this.io = io;
 	}
 
 	public void gioca() {
@@ -71,8 +72,34 @@ public class DiaDia {
 	}   
 
 	public static void main(String[] argc) {
-		IO io = new IOConsole();
-		DiaDia gioco = new DiaDia(io);
+		IO io= new IOConsole();
+		Labirinto labirinto = new LabirintoBuilder()
+				.addStanzaIniziale("LabCampusOne")
+				.addAttrezzo("pc", 2)
+				.addStanza("bagno")
+				.addAttrezzo("lanterna", 1)
+				.addAdiacenza("LabCampusOne", "bagno", "est")
+				.addAdiacenza("bagno", "LabCampusOne", "ovest")
+				.addStanza("cucina")
+				.addAttrezzo("cucchiaio", 2)
+				.addAdiacenza("LabCampusOne", "cucina", "nord")
+				.addAdiacenza("cucina", "LabCampusOne", "sud")
+				.addStanzaBuia("sgabuzzino", "lanterna")
+				.addAttrezzo("piedediporco", 3)
+				.addAdiacenza("LabCampusOne", "sgabuzzino", "sud")
+				.addAdiacenza("sgabuzzino", "LabCampusOne", "nord")
+				.addStanzaBloccata("tunnel", "piedediporco", "nord")
+				.addAdiacenza("tunnel", "sgabuzzino", "ovest")
+				.addAttrezzo("sasso", 2)
+				.addAdiacenza("sgabuzzino", "tunnel", "est")
+				.addStanzaMagica("narnia", 2)
+				.addAdiacenza("tunnel", "narnia", "nord")
+				.addAdiacenza("narnia", "tunnel", "sud")
+				.addStanzaVincente("Biblioteca")
+				.addAdiacenza("Biblioteca", "narnia", "est")
+				.addAdiacenza("LabCampusOne","Biblioteca","ovest")
+				.getLabirinto();
+		DiaDia gioco = new DiaDia(labirinto,io);
 		gioco.gioca();
 	}
 }

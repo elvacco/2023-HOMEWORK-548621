@@ -1,42 +1,40 @@
 package it.uniroma3.diadia;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class IOSimulator implements IO{
-	static final private int MAX_MESSAGGI_PRODOTTI = 10;
-
-	private String[] righeDaLeggere;
-	private int indiceRigheDaLeggere;
-	private String[] messaggiProdotti;
-	private int indiceMessaggiProdotti;
-	private int indiceMessaggiMostrati;
-
-	public IOSimulator(String[] righeDaLeggere) {
+	
+	private List<String> righeDaLeggere;
+	private List<String> messaggiProdotti;
+	
+	public IOSimulator(List <String> righeDaLeggere) {
 		this.righeDaLeggere = righeDaLeggere;
-		this.indiceRigheDaLeggere = 0;
-		this.messaggiProdotti = new String[MAX_MESSAGGI_PRODOTTI];
-		this.indiceMessaggiProdotti = 0;
-		this.indiceMessaggiMostrati = 0;
-	}
-
-	@Override
-	public void mostraMessaggio(String messaggio) {
-		this.messaggiProdotti[this.indiceMessaggiProdotti] = messaggio;
-		this.indiceMessaggiProdotti++;
+		this.messaggiProdotti = new LinkedList <String>();
 	}
 
 	@Override
 	public String leggiRiga() {
-		String rigaLetta = this.righeDaLeggere[this.indiceRigheDaLeggere];
-		this.indiceRigheDaLeggere++;
-		return rigaLetta;
+		if(!righeDaLeggere.isEmpty())
+			return righeDaLeggere.remove(0);
+		else
+			return null;
 	}
 
+	@Override
+	public void mostraMessaggio(String messaggio) {
+		messaggiProdotti.add(messaggio);
+	}
+	
 	public String nextMessaggio() {
-		String next = this.messaggiProdotti[this.indiceMessaggiMostrati];
-		this.indiceMessaggiMostrati++;
-		return next;
+		if(this.hasNextMessaggio())
+			return messaggiProdotti.remove(0);
+		else
+			return null;
 	}
-
+	
 	public boolean hasNextMessaggio() {
-		return this.indiceMessaggiMostrati < this.indiceMessaggiProdotti;
+		return !this.messaggiProdotti.isEmpty();
 	}
+	
 }

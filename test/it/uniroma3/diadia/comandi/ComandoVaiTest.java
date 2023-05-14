@@ -2,12 +2,18 @@ package it.uniroma3.diadia.comandi;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import it.uniroma3.diadia.DiaDia;
 import it.uniroma3.diadia.IOConsole;
+import it.uniroma3.diadia.IOSimulator;
 import it.uniroma3.diadia.Partita;
 import it.uniroma3.diadia.ambienti.Stanza;
+import it.uniroma3.diadia.fixture.Fixture;
 
 class ComandoVaiTest {
 
@@ -50,6 +56,20 @@ class ComandoVaiTest {
 		this.comandoVai.setParametro(NORD);
 		this.comandoVai.esegui(partita);
 		assertEquals(NOME_STANZA_PARTENZA, this.partita.getStanzaCorrente().getNome());
+	}
+	
+	@Test
+	public void testPartitaConComandoVai() {
+		List<String> comandiDaEseguire = new ArrayList<String>();
+		comandiDaEseguire.add("vai sud");
+		comandiDaEseguire.add("fine");
+		IOSimulator io = Fixture.creaSimulazionePartiteEGioca(comandiDaEseguire);
+		assertTrue(io.hasNextMessaggio());
+		assertEquals(DiaDia.MESSAGGIO_BENVENUTO, io.nextMessaggio());
+		assertTrue(io.hasNextMessaggio());
+		assertContains("Aula N10", io.nextMessaggio());
+		assertTrue(io.hasNextMessaggio());
+		assertEquals(ComandoFine.MESSAGGIO_FINE, io.nextMessaggio());
 	}
 	
 	public void assertContains(String expected, String interaRiga) {
