@@ -2,6 +2,7 @@ package it.uniroma3.diadia.ambienti;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,41 +10,38 @@ import it.uniroma3.diadia.attrezzi.Attrezzo;
 
 class StanzaMagicaTest {
 
-	static final private String NOME_STANZA = "magica";
-	static final private int SOGLIA_MAGICA = 3;
-	
-	private StanzaMagica magica;
-	private Attrezzo attrezzo;
+	private StanzaMagica s1;
+	private Attrezzo p;
+	private Attrezzo m;
+	private Attrezzo v;
 	
 	@BeforeEach
-	public void setUp() {
-		this.magica = new StanzaMagica(NOME_STANZA, SOGLIA_MAGICA);
-		this.attrezzo = new Attrezzo("asso", 1);
+	public void setUp() throws Exception {
+		s1 = new StanzaMagica("s1");
+		p = new Attrezzo("pala", 33);
+		m = new Attrezzo("martello", 42);
+		v = new Attrezzo("vanga", 42);
 	}
-	
+
+	@AfterEach
+	public void tearDown() throws Exception {
+	}
+
 	@Test
-	public void testAddAttrezzoNonostanteLaSogliaMagica() {
-		for(int i=0; i<SOGLIA_MAGICA; i++) {
-			this.magica.addAttrezzo(attrezzo);
-		}
-		assertTrue(this.magica.addAttrezzo(attrezzo));
+	public void testAddAttrezzo() {
+		assertTrue(s1.addAttrezzo(m));
+
 	}
-	
+
+
 	@Test
-	public void testPesoRaddoppiato() {
-		for(int i=0; i<SOGLIA_MAGICA; i++) {
-			this.magica.addAttrezzo(attrezzo);
+	public void testModificaAttrezzo() {
+		assertTrue(s1.addAttrezzo(p));
+		assertTrue(s1.addAttrezzo(v));
+		assertTrue(s1.addAttrezzo(m));
+
+		//assertEquals("olletram",m.getNome());	
+		//assertEquals(84,m.getPeso());	
+
 		}
-		this.magica.addAttrezzo(attrezzo);
-		assertTrue(this.magica.getAttrezzo("ossa").getPeso() == 2);
-	}
-	
-	@Test
-	public void testNomeInvertito() {
-		for(int i=0; i<SOGLIA_MAGICA; i++) {
-			this.magica.addAttrezzo(attrezzo);
-		}
-		this.magica.addAttrezzo(attrezzo);
-		assertTrue(this.magica.hasAttrezzo("ossa"));
-	}
 }

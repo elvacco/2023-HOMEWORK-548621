@@ -18,7 +18,7 @@ public class ComandoPrendi implements Comando {
 		}
 		Attrezzo attrezzo = partita.getStanzaCorrente().getAttrezzo(nomeAttrezzo);
 		partita.getGiocatore().getBorsa().addAttrezzo(attrezzo);
-		partita.getStanzaCorrente().removeAttrezzo(attrezzo.getNome());
+		partita.getStanzaCorrente().removeAttrezzo(attrezzo);
 		io.mostraMessaggio("Attrezzo "+ this.nomeAttrezzo + " preso!");
 
 	}

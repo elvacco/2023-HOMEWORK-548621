@@ -2,59 +2,73 @@ package it.uniroma3.diadia.comandi;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import it.uniroma3.diadia.IO;
 import it.uniroma3.diadia.IOConsole;
 import it.uniroma3.diadia.Partita;
-import it.uniroma3.diadia.ambienti.Stanza;
+import it.uniroma3.diadia.ambienti.Labirinto;
 import it.uniroma3.diadia.attrezzi.Attrezzo;
-import it.uniroma3.diadia.giocatore.Borsa;
 
 class ComandoPosaTest {
 
-	private static final String ATTREZZO_DA_POSARE ="AttrezzoDaPosare";
-	static final private int NUMERO_MASSIMO_ATTREZZI = 10;
-	private ComandoPosa comandoPosa;
 	private Partita partita;
-	
+	private Attrezzo attrezzo;
+	private IO io;
+	private Comando comando;
+	Labirinto labirinto;
+
 	@BeforeEach
-	public void setUp() throws Exception{
-		this.comandoPosa = new ComandoPosa();
-		this.comandoPosa.set(new IOConsole());
-		this.partita = new Partita();
-		Borsa borsa = partita.getGiocatore().getBorsa();
-		Attrezzo attrezzoNuovo = new Attrezzo(ATTREZZO_DA_POSARE, 1);
-		borsa.addAttrezzo(attrezzoNuovo);
+	public void setUp() throws Exception {
+		labirinto = Labirinto.newBuilder("labirinto3.txt").getLabirinto();
+		//				new LabirintoBuilder()
+		//				.addStanzaIniziale("Atrio")
+		//				.addAttrezzo("seghetto", 3)
+		//				.addStanzaVincente("Biblioteca")
+		//				.addAdiacenza("Atrio", "Biblioteca", "nord")
+		//				.getLabirinto();
+		partita = new Partita(labirinto);
+		attrezzo = new Attrezzo("martello", 2);
+		comando = new ComandoPosa();
+		io = new IOConsole(null);
+		comando.set(io);
 	}
-	
+
+	@AfterEach
+	public void tearDown() throws Exception {
+	}
+
 	@Test
-	public void testEseguiAttrezzoPresente() {
-		this.comandoPosa.setParametro(ATTREZZO_DA_POSARE);
-		this.comandoPosa.esegui(partita);
-		assertTrue(partita.getStanzaCorrente().hasAttrezzo(ATTREZZO_DA_POSARE));
-		assertFalse(partita.getGiocatore().getBorsa().hasAttrezzo(ATTREZZO_DA_POSARE));
+	public void testAttrezzoPosato() {
+		partita.getGiocatore().getBorsa().addAttrezzo(attrezzo);
+		comando.setParametro("martello");
+		comando.esegui(partita);
+		assertTrue(partita.getStanzaCorrente().hasAttrezzo("martello"));
 	}
-	
+
 	@Test
-	public void testEseguiAttrezzoNonPresente() {
-		String nonPresente ="attrezzoNonPresente";
-		this.comandoPosa.setParametro(nonPresente);
-		this.comandoPosa.esegui(partita);
-		assertFalse(partita.getStanzaCorrente().hasAttrezzo(nonPresente));
-		assertFalse(partita.getStanzaCorrente().hasAttrezzo(ATTREZZO_DA_POSARE));
-		assertTrue(partita.getGiocatore().getBorsa().hasAttrezzo(ATTREZZO_DA_POSARE));
+	public void testAttrezzoPosatoNull() {
+		comando.setParametro("martello");
+		comando.esegui(partita);
+		assertFalse(partita.getStanzaCorrente().hasAttrezzo("martello"));
 	}
-	
+
+
+	public void creatoreAttrezzi() {
+		for(int i= 0; i<10;i++) {
+			partita.getStanzaCorrente().addAttrezzo(new Attrezzo("utensile"+i, 1));
+		}
+	}
+
 	@Test
-	public void testEseguiStanzaPiena() {
-		Stanza stanzaCorrente = partita.getStanzaCorrente();
-		for(int i=0; i<NUMERO_MASSIMO_ATTREZZI; i++)
-			stanzaCorrente.addAttrezzo(new Attrezzo("attrezzo"+i, 1));
-		
-		this.comandoPosa.setParametro(ATTREZZO_DA_POSARE);
-		this.comandoPosa.esegui(partita);
-		assertFalse(stanzaCorrente.hasAttrezzo(ATTREZZO_DA_POSARE));
-		assertTrue(partita.getGiocatore().getBorsa().hasAttrezzo(ATTREZZO_DA_POSARE));
+	public void testTroppiAttrezzi() {
+		this.creatoreAttrezzi();
+		partita.getGiocatore().getBorsa().addAttrezzo(attrezzo);
+		comando.setParametro("martello");
+		comando.esegui(partita);
+		assertFalse(partita.getStanzaCorrente().hasAttrezzo("martello"));
 	}
+
 }

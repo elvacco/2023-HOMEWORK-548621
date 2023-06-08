@@ -6,10 +6,15 @@ import it.uniroma3.diadia.IO;
 
 public class FabbricaDiComandiFisarmonica implements FabbricaDiComandi {
 
-	static final private String[] elencoComandi = {"vai", "aiuto", "fine", "prendi", "posa", "guarda"};
+	private IO io;
+	
+	public FabbricaDiComandiFisarmonica(IO io) {
+		this.io = io;
+	}
 
+	@SuppressWarnings("resource")
 	@Override
-	public Comando costruisciComando(String istruzione, IO io) {
+	public Comando costruisciComando(String istruzione) {
 
 		Scanner scannerDiParole = new Scanner(istruzione);
 		String nomeComando = null; 
@@ -30,7 +35,7 @@ public class FabbricaDiComandiFisarmonica implements FabbricaDiComandi {
 		else if (nomeComando.equals("posa"))
 			comando = new ComandoPosa();
 		else if (nomeComando.equals("aiuto")) 
-			comando = new ComandoAiuto(elencoComandi);
+			comando = new ComandoAiuto();
 		else if (nomeComando.equals("fine")) 
 			comando = new ComandoFine();
 		else if (nomeComando.equals("guarda")) 
@@ -38,7 +43,7 @@ public class FabbricaDiComandiFisarmonica implements FabbricaDiComandi {
 		else comando = new ComandoNonValido(); 
 
 		comando.setParametro(parametro); 
-		comando.set(io);
+		comando.set(this.io);
 		return comando;
 	}
 

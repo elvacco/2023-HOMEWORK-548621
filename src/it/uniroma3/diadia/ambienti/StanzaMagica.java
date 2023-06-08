@@ -4,45 +4,40 @@ import it.uniroma3.diadia.attrezzi.Attrezzo;
 
 public class StanzaMagica extends Stanza{
 	
-	static final public int SOGLIA_MAGICA_DEFAULT=3;
-	
-	private int contatore;
+	private int contatoreAttrezziPosati;
 
 	private int sogliaMagica;
-	
+
+	private static final int SOGLIA_MAGICA_DEFAULT = 1;
+
 	public StanzaMagica(String nome) {
 		this(nome, SOGLIA_MAGICA_DEFAULT);
 	}
-	
-	
+
 	public StanzaMagica(String nome, int soglia) {
 		super(nome);
-		this.contatore=0;
-		this.sogliaMagica=soglia;
-	}
-	
-	@Override
-	public boolean addAttrezzo(Attrezzo attrezzo) {
-		if(this.contatore<this.sogliaMagica) {
-			//Il comportamento non è ancora magico
-			this.contatore++;
-			return super.addAttrezzo(attrezzo);
-		}
-		else {
-			attrezzo=modificaAttrezzo(attrezzo);
-			return super.addAttrezzo(attrezzo);
-		}
+		this.contatoreAttrezziPosati = 0;
+		this.sogliaMagica = soglia;
 	}
 
 
 	private Attrezzo modificaAttrezzo(Attrezzo attrezzo) {
 		StringBuilder nomeInvertito;
 		int pesoX2 = attrezzo.getPeso() * 2;
-		nomeInvertito  = new StringBuilder(attrezzo.getNome());
+		nomeInvertito = new StringBuilder(attrezzo.getNome());
 		nomeInvertito = nomeInvertito.reverse();
-		attrezzo = new Attrezzo(nomeInvertito.toString(),pesoX2);
+		attrezzo = new Attrezzo(nomeInvertito.toString(),
+				pesoX2);
 		return attrezzo;
 	}
-	
-	
+
+	@Override
+	public boolean addAttrezzo(Attrezzo attrezzo) {
+		if(this.contatoreAttrezziPosati>this.sogliaMagica) {
+			attrezzo = this.modificaAttrezzo(attrezzo);
+		}
+		this.contatoreAttrezziPosati++;
+
+		return super.addAttrezzo(attrezzo);
+	}
 }

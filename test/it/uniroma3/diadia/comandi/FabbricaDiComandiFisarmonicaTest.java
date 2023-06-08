@@ -2,69 +2,48 @@ package it.uniroma3.diadia.comandi;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import it.uniroma3.diadia.IO;
 import it.uniroma3.diadia.IOConsole;
 
 class FabbricaDiComandiFisarmonicaTest {
 
-	private FabbricaDiComandiFisarmonica factory;
-	private Comando comando;
-	static final private String[] elencoComandi = {"vai", "aiuto", "prendi", "posa", "fine"};
-
+	private FabbricaDiComandiFisarmonica fabbrica;
+	private IO io;
+	private Comando expected;
+	
 	@BeforeEach
-	public void setUp() {
-		this.factory = new FabbricaDiComandiFisarmonica();
+	public void setUp() throws Exception {
+		io = new IOConsole(null);
+		fabbrica = new FabbricaDiComandiFisarmonica(io);
+	}
+
+	@AfterEach
+	public void tearDown() throws Exception {
 	}
 
 	@Test
-	public void testCostruisciComandoVai() {
-		this.comando = new ComandoVai();
-
-		assertEquals(this.factory.costruisciComando("vai nord", new IOConsole()).getNome(), this.comando.getNome());
+	public void testComandoNonValido() {
+		expected = new ComandoNonValido();
+		assertEquals( expected.getNome(), fabbrica.costruisciComando("pippo").getNome());
 	}
-
+	
 	@Test
-	public void testCostruisciComandoAiuto() {
-		this.comando = new ComandoAiuto(elencoComandi);
-
-		assertEquals(this.factory.costruisciComando("aiuto", new IOConsole()).getNome(), this.comando.getNome());
+	public void testComandoConParametro() {
+		expected = new ComandoVai();
+		expected.setParametro("nord");
+		Comando current = fabbrica.costruisciComando("vai nord");
+		assertEquals( expected.getNome(), current.getNome());
+		assertEquals( expected.getParametro(), current.getParametro());
 	}
-
+	
 	@Test
-	public void testCostruisciComandoGuarda() {
-		this.comando = new ComandoGuarda();
-
-		assertEquals(this.factory.costruisciComando("guarda", new IOConsole()).getNome(), this.comando.getNome());
-	}
-
-	@Test
-	public void testCostruisciComandoPrendi() {
-		this.comando = new ComandoPrendi();
-
-		assertEquals(this.factory.costruisciComando("prendi", new IOConsole()).getNome(), this.comando.getNome());
-	}
-
-	@Test
-	public void testCostruisciComandoPosa() {
-		this.comando = new ComandoPosa();
-
-		assertEquals(this.factory.costruisciComando("posa", new IOConsole()).getNome(), this.comando.getNome());
-	}
-
-	@Test
-	public void testCostruisciComandoFine() {
-		this.comando = new ComandoFine();
-
-		assertEquals(this.factory.costruisciComando("fine", new IOConsole()).getNome(), this.comando.getNome());
-	}
-
-	@Test
-	public void testCostruisciComandoNonValido() {
-		this.comando = new ComandoNonValido();
-
-		assertEquals(this.factory.costruisciComando("qualcosa", new IOConsole()).getNome(), this.comando.getNome());
+	public void testComandoSenzaParametro() {
+		expected = new ComandoFine();
+		assertEquals( expected.getNome(), fabbrica.costruisciComando("fine").getNome());
 	}
 
 }

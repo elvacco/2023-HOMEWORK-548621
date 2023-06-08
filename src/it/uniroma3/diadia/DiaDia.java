@@ -1,11 +1,12 @@
 package it.uniroma3.diadia;
 
 
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import it.uniroma3.diadia.ambienti.Labirinto;
-import it.uniroma3.diadia.ambienti.LabirintoBuilder;
 import it.uniroma3.diadia.comandi.Comando;
-import it.uniroma3.diadia.comandi.FabbricaDiComandi;
-import it.uniroma3.diadia.comandi.FabbricaDiComandiFisarmonica;
+import it.uniroma3.diadia.comandi.FabbricaDiComandiRiflessiva;
 
 /**
  * Classe principale di diadia, un semplice gioco di ruolo ambientato al dia.
@@ -33,12 +34,7 @@ public class DiaDia {
 
 	private IO io;
 	private Partita partita;
-	
-	public DiaDia(IO io) {
-		this.io = io;
-		this.partita = new Partita();
-	}
-	
+
 	public DiaDia(Labirinto lab, IO io) {
 		this.partita = new Partita(lab);
 		this.io = io;
@@ -61,45 +57,24 @@ public class DiaDia {
 	 */
 	private boolean processaIstruzione(String istruzione) {
 		Comando comandoDaEseguire;
-		FabbricaDiComandi factory = new FabbricaDiComandiFisarmonica();
-		comandoDaEseguire = factory.costruisciComando(istruzione, io);
+		FabbricaDiComandiRiflessiva factory = new FabbricaDiComandiRiflessiva(this.io);
+		comandoDaEseguire = factory.costruisciComando(istruzione);
+		comandoDaEseguire.set(this.io);
 		comandoDaEseguire.esegui(this.partita);
 		if (this.partita.vinta())
-			System.out.println("Hai vinto!");
-		if (this.partita.getGiocatore().getCfu()==0)
-			System.out.println("Hai esaurito i CFU...");
+			io.mostraMessaggio("Hai vinto!");
+		if (!this.partita.giocatoreIsVivo())
+			io.mostraMessaggio("Hai esaurito i CFU...");
 		return this.partita.isFinita();
 	}   
 
-	public static void main(String[] argc) {
-		IO io= new IOConsole();
-		Labirinto labirinto = new LabirintoBuilder()
-				.addStanzaIniziale("LabCampusOne")
-				.addAttrezzo("pc", 2)
-				.addStanza("bagno")
-				.addAttrezzo("lanterna", 1)
-				.addAdiacenza("LabCampusOne", "bagno", "est")
-				.addAdiacenza("bagno", "LabCampusOne", "ovest")
-				.addStanza("cucina")
-				.addAttrezzo("cucchiaio", 2)
-				.addAdiacenza("LabCampusOne", "cucina", "nord")
-				.addAdiacenza("cucina", "LabCampusOne", "sud")
-				.addStanzaBuia("sgabuzzino", "lanterna")
-				.addAttrezzo("piedediporco", 3)
-				.addAdiacenza("LabCampusOne", "sgabuzzino", "sud")
-				.addAdiacenza("sgabuzzino", "LabCampusOne", "nord")
-				.addStanzaBloccata("tunnel", "piedediporco", "nord")
-				.addAdiacenza("tunnel", "sgabuzzino", "ovest")
-				.addAttrezzo("sasso", 2)
-				.addAdiacenza("sgabuzzino", "tunnel", "est")
-				.addStanzaMagica("narnia", 2)
-				.addAdiacenza("tunnel", "narnia", "nord")
-				.addAdiacenza("narnia", "tunnel", "sud")
-				.addStanzaVincente("Biblioteca")
-				.addAdiacenza("Biblioteca", "narnia", "est")
-				.addAdiacenza("LabCampusOne","Biblioteca","ovest")
-				.getLabirinto();
+	public static void main(String[] argc) throws FileNotFoundException, FormatoFileNonValidoException {
+		Scanner scanner = new Scanner(System.in);
+		IO io= new IOConsole(scanner);
+		Labirinto labirinto = Labirinto.newBuilder("labirinto5.txt").getLabirinto();
+
 		DiaDia gioco = new DiaDia(labirinto,io);
 		gioco.gioca();
+		scanner.close();
 	}
 }
